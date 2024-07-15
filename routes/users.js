@@ -1,26 +1,52 @@
 const express = require('express');
 const router = express.Router();
+const Joi = require('joi');
+
+// Define a schema for user data validation
+const userSchema = Joi.object({
+  firstName: Joi.string()
+  .alphanum()
+  .min(3)
+  .max(30)
+  .required(),
+
+  lastName: Joi.string()
+  .alphanum()
+  .min(3)
+  .max(30)
+  .required(),
+
+  email: Joi.string()
+  .email({minDomainSegments: 2}).required(),
+
+  DOB: Joi.date().iso().required().messages({
+    'date.base': 'Invalid date format. Date should be in ISO format',
+    'date.format': 'Invalid date format. Date should be in ISO format',
+    'date.iso': 'Invalid date format. Date should be in ISO format',
+    'any.required': 'Date of birth is required'
+  })
+});
 
 
 let users = [
-    {
-        firstName: "John",
-        lastName: "wick",
-        email:"johnwick@gamil.com",
-        DOB:"22-01-1990",
-    },
-    {
-        firstName: "John",
-        lastName: "smith",
-        email:"johnsmith@gamil.com",
-        DOB:"21-07-1983",
-    },
-    {
-        firstName: "Joyal",
-        lastName: "white",
-        email:"joyalwhite@gamil.com",
-        DOB:"21-03-1989",
-    },
+  {
+    firstName: "John",
+    lastName: "wick",
+    email:"johnwick@gamil.com",
+    DOB:"1990-01-22",
+  },
+  {
+    firstName: "John",
+    lastName: "smith",
+    email:"johnsmith@gamil.com",
+    DOB:"1983-07-21",
+  },
+  {
+    firstName: "Joyal",
+    lastName: "white",
+    email:"joyalwhite@gamil.com",
+    DOB:"1989-03-21",
+  },
 ];
 
 // GET request: Retrieve all users
@@ -52,25 +78,37 @@ router.get("/:email",(req,res)=>{
 });
 
 
-// POST request: Create a new user
+// POST request: Create a new user using the data in the request body and the joi schema
 
-// req.query is used to access the query parameters in the request
-// Example:curl --request POST 'localhost:5000/user?firstName=Jon&lastName=Lovato&email=jonlovato@theworld.com&DOB=10/10/1995'
-router.post("/",(req,res)=>{
+// req.body is used to get the data from the body of the request
+// Example: curl --header "Content-Type: application/json" --request POST --data '{"firstName":"John","lastName":"Doe","email": johndoe@email.com,"DOB":"01-01-1990"}' http://localhost:5000/user
+
+// Envoyer les données en tant que données de formulaire :
+/* Example: curl --header "Content-Type: application/x-www-form-urlencoded" \
+     --request POST \
+     --data "firstName=Jon&lastName=Lovato&email=jonlovato@theworld.com&DOB=10/10/1995" \
+     http://localhost:5000/user
+*/
+
+router.post("/",async(req,res)=>{
   
   try {
-    const {firstName,lastName,email,DOB} = req.query;
-    if(!firstName || !lastName || !email || !DOB){
-      return res.status(400).send("All input is required");
-    }
+    const {firstName,lastName,email,DOB} = req.body;
     
-    users.push({firstName,lastName,email,DOB});
-    res.send(`The user ${req.query.firstName} is added to the database`);
+    // Validate the user data
+    const value = await userSchema.validateAsync({firstName,lastName,email,DOB});
+    
+    // Check if the user already exists
+    const foundUserByEmail = users.find((user) => user.email === email);
+    if(foundUserByEmail){
+      return res.status(409).send("User already exists");
+    }
+
+    users.push(value);
+    res.send(`The user ${firstName} is added to the database`);
     console.log(users);
   } catch (error) {
-    
-    console.error(error);
-    return res.status(500).send("Internal server error");
+    error.isJoi ? res.status(400).send(error.details[0].message) : res.status(500).send("Internal server error");
   }
 });
 
