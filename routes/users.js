@@ -25,14 +25,30 @@ let users = [
 
 // GET request: Retrieve all users
 router.get("/",(req,res)=>{
-  // Copy the code here
-  res.send("Yet to be implemented")//This line is to be replaced with actual return value
+  res.send(users);
+
 });
 
 // GET by specific ID request: Retrieve a single user with email ID
 router.get("/:email",(req,res)=>{
-  // Copy the code here
-  res.send("Yet to be implemented")//This line is to be replaced with actual return value
+
+  try {
+    const email = req.params.email;
+    if(!email?.includes("@")){
+      return res.status(400).send("Invalid email format");
+    }
+
+    const foundUserByEmail = users.find((user) => user.email === email);
+    if(!foundUserByEmail){
+      return res.status(404).send("User not found");
+    }
+
+    res.send(foundUserByEmail);
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).send("Internal server error");
+  }
 });
 
 
