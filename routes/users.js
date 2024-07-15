@@ -53,9 +53,25 @@ router.get("/:email",(req,res)=>{
 
 
 // POST request: Create a new user
+
+// req.query is used to access the query parameters in the request
+// Example:curl --request POST 'localhost:5000/user?firstName=Jon&lastName=Lovato&email=jonlovato@theworld.com&DOB=10/10/1995'
 router.post("/",(req,res)=>{
-  // Copy the code here
-  res.send("Yet to be implemented")//This line is to be replaced with actual return value
+  
+  try {
+    const {firstName,lastName,email,DOB} = req.query;
+    if(!firstName || !lastName || !email || !DOB){
+      return res.status(400).send("All input is required");
+    }
+    
+    users.push({firstName,lastName,email,DOB});
+    res.send(`The user ${req.query.firstName} is added to the database`);
+    console.log(users);
+  } catch (error) {
+    
+    console.error(error);
+    return res.status(500).send("Internal server error");
+  }
 });
 
 
