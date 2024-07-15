@@ -114,9 +114,24 @@ router.post("/",async(req,res)=>{
 
 
 // PUT request: Update the details of a user by email ID
-router.put("/:email", (req, res) => {
-  // Copy the code here
-  res.send("Yet to be implemented")//This line is to be replaced with actual return value
+router.put("/:email", async(req, res) => {
+
+   try {
+    const {email} = req.params;
+    const validatedData = await userSchema.validateAsync(req.body);
+
+    const userIndex = users.findIndex((user) => user.email === email);
+    if(userIndex === -1){
+      return res.status(404).send("User not found");
+    }
+
+    users[userIndex] = {...users[userIndex],...validatedData};
+    res.send(`The user with email ${email} is updated`);
+   } catch (error) {
+    console.error(error);
+    error.isJoi ? res.status(400).send(error.details[0].message) : res.status(500).send("Internal server error");
+  
+   }
 });
 
 
