@@ -14,6 +14,11 @@ app.use(
     secret: process.env.SESSION_SECRET,
     resave: true,
     saveUninitialized: true,
+    cookie: {
+        secure: true,
+        httpOnly: true,
+        maxAge: 3600000,
+        },
   })
 );
 
@@ -81,7 +86,7 @@ app.post(
         req.session.authorization = {
           accessToken,
         };
-        
+
         return res.status(200).send("User successfully logged in");
       } catch (error) {
         console.error(error);
