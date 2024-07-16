@@ -2,12 +2,17 @@ const express = require('express');
 const routes = require('./routes/users.js');
 const jwt = require('jsonwebtoken');
 const session = require('express-session');
+require('dotenv').config();
 
 const app = express();
 const PORT = 5500;
 
 // Initialize session middleware with options
-app.use(session({ secret: "fingerprint", resave: true, saveUninitialized: true }));
+app.use(session({ 
+    secret: process.env.SESSION_SECRET, 
+    resave: true, 
+    saveUninitialized: true 
+}));
 
 // Middleware for user authentication
 app.use("/user", (req, res, next) => {
