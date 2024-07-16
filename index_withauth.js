@@ -4,16 +4,16 @@ const jwt = require('jsonwebtoken');
 const session = require('express-session');
 
 const app = express();
-const PORT = 5000;
+const PORT = 5500;
 
 // Initialize session middleware with options
-app.use(session({ secret: "fingerpint", resave: true, saveUninitialized: true }));
+app.use(session({ secret: "fingerprint", resave: true, saveUninitialized: true }));
 
 // Middleware for user authentication
 app.use("/user", (req, res, next) => {
     // Check if user is authenticated
     if (req.session.authorization) {
-        let token = req.session.authorization['accessToken']; // Access Token
+        let token = req.session.authorization?.accessToken; // Access Token
         
         // Verify JWT token for user authentication
         jwt.verify(token, "access", (err, user) => {
