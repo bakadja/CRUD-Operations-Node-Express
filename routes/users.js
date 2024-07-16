@@ -144,6 +144,7 @@ router.put("/:email", async(req, res) => {
 // DELETE request: Delete a user by email ID
 router.delete("/:email", (req, res) => {
   const { email } = req.params;
+  console.log(email);
   const userIndex = users.findIndex((user) => user.email === email);
 
   if(userIndex === -1){
@@ -153,5 +154,42 @@ router.delete("/:email", (req, res) => {
   users.splice(userIndex,1);
   res.send(`The user with email ${email} is deleted`);
 });
+
+
+// GET request: Retrieve all users with a specific last name
+router.get("/lastName/:lastName",(req,res)=>{
+
+  try {
+    const { lastName } = req.params;
+
+    const foundUsersByLastName = users.filter((user) => user.lastName
+    .toLowerCase() === lastName.toLowerCase());
+
+    if(!foundUsersByLastName.length){
+      return res.status(404).send("Users not found");
+    }
+
+    res.send(foundUsersByLastName);
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).send("Internal server error");
+  }
+});
+
+// GET request: Retrieve user sort by date of birth ascending or descending
+router.get("/sort/:dob", (req, res) => {
+
+  const { dob } = req.params;
+  console.log(dob);
+  if(dob === "asc"){
+    users.sort((a,b) => new Date(a.DOB) - new Date(b.DOB));
+  } else if(dob === "desc"){
+    users.sort((a,b) => new Date(b.DOB) - new Date(a.DOB));
+  } else {
+    return res.status(400).send("Invalid sorting order");
+  }
+  res.send(users);
+})
 
 module.exports=router;
