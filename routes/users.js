@@ -122,7 +122,7 @@ router.post("/",async(req,res)=>{
 router.put("/:email", async(req, res) => {
 
    try {
-    const {email} = req.params;
+    const { email } = req.params;
     const validatedData = await userSchema.validateAsync(req.body);
 
     const userIndex = users.findIndex((user) => user.email === email);
@@ -130,12 +130,13 @@ router.put("/:email", async(req, res) => {
       return res.status(404).send("User not found");
     }
 
+    // Update the user details
     users[userIndex] = {...users[userIndex],...validatedData};
+
     res.send(`The user with email ${email} is updated`);
    } catch (error) {
     console.error(error);
     error.isJoi ? res.status(400).send(error.details[0].message) : res.status(500).send("Internal server error");
-  
    }
 });
 
@@ -144,6 +145,7 @@ router.put("/:email", async(req, res) => {
 router.delete("/:email", (req, res) => {
   const { email } = req.params;
   const userIndex = users.findIndex((user) => user.email === email);
+  
   if(userIndex === -1){
     return res.status(404).json({error: "User not found"});
   }

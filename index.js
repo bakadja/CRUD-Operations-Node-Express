@@ -6,6 +6,8 @@ const PORT = 5500;
 
 // Use JSON parsing middleware and user routes
 app.use(express.json());
+
+//Use the user routes
 app.use("/user", routes);
 
 // Start the server and log a message when it's running
