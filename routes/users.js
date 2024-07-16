@@ -137,8 +137,14 @@ router.put("/:email", async(req, res) => {
 
 // DELETE request: Delete a user by email ID
 router.delete("/:email", (req, res) => {
-  // Copy the code here
-  res.send("Yet to be implemented")//This line is to be replaced with actual return value
+  const { email } = req.params;
+  const userIndex = users.findIndex((user) => user.email === email);
+  if(userIndex === -1){
+    return res.status(404).json({error: "User not found"});
+  }
+
+  users.splice(userIndex,1);
+  res.send(`The user with email ${email} is deleted`);
 });
 
 module.exports=router;
